@@ -9,6 +9,7 @@ from instance.config import app_config
 db = SQLAlchemy()
 
 def create_app(config_name):
+    """ Creates the app based on the configurations"""
     from app.models import Bucketlist, User, Item
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
@@ -19,6 +20,7 @@ def create_app(config_name):
 
     @app.route('/bucketlists/', methods=['POST', 'GET'])
     def bucketlists():
+        """ Creates a bucketlis(POST) or lists all bucketlists(GET) for a user"""
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -93,7 +95,8 @@ def create_app(config_name):
 
     @app.route('/bucketlists/<int:b_id>', methods=['GET', 'PUT', 'DELETE'])
     def bucketlist_manipulation(b_id, **kwargs):
-     # retrieve a buckelist using it's ID
+        """ GETS a bucketlist's info, changes it or deletes it by ID"""
+        # retrieve a buckelist using it's ID
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -137,7 +140,7 @@ def create_app(config_name):
                     # Handle GET request, sending back the bucketlist to the user
                     items = Item.query.filter_by(bucketlist_id=b_id)
                     results_items = []
-                    
+
                     for item in items:
                         obj = {
                             'id': item.item_id,
@@ -167,6 +170,7 @@ def create_app(config_name):
     
     @app.route('/bucketlists/<int:b_id>/items/', methods=['POST'])
     def items(b_id, **kwargs):
+        """ Creates an item in a bucketlist """
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -213,6 +217,7 @@ def create_app(config_name):
 
     @app.route('/bucketlists/<int:b_id>/items/<int:item_id>', methods=['PUT', 'DELETE'])
     def items_manipulation(b_id, item_id, **kwargs):
+        """ Changes info for an item or deltes it by ID"""
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
         

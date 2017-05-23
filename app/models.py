@@ -122,7 +122,7 @@ class Item(db.Model):
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp())
     done = db.Column(db.Boolean, default=False)
     bucketlist_id = db.Column(db.Integer, db.ForeignKey(Bucketlist.id))
-    
+
     def __init__(self, name, bucketlist_id):
         """Initialize the item with a name."""
         self.name = name
