@@ -2,6 +2,7 @@ import unittest
 import json
 from app import create_app, db
 
+
 class AuthTestCase(unittest.TestCase):
     """Test case for the authentication blueprint."""
 
@@ -27,8 +28,10 @@ class AuthTestCase(unittest.TestCase):
         res = self.client().post('/auth/register', data=self.user_data)
         # get the results returned in json format
         result = json.loads(res.data.decode())
-        # assert that the request contains a success message and a 201 status code
-        self.assertEqual(result['message'], "You registered successfully. Please log in.")
+        # assert that the request contains a success message and a 201 status
+        # code
+        self.assertEqual(result['message'],
+                         "You registered successfully. Please log in.")
         self.assertEqual(res.status_code, 201)
 
     def test_already_registered_user(self):

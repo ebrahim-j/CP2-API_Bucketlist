@@ -4,6 +4,7 @@ from flask.views import MethodView
 from flask import make_response, request, jsonify
 from app.models import User
 
+
 class RegistrationView(MethodView):
     """This class registers a new user."""
     @staticmethod
@@ -20,7 +21,7 @@ class RegistrationView(MethodView):
                 # Register the user
 
                 email = post_data['email']
-                #if email an empty string?
+                # if email an empty string?
                 password = post_data['password']
                 user = User(email=email, password=password)
                 user.save()
@@ -28,22 +29,26 @@ class RegistrationView(MethodView):
                 response = {
                     'message': 'You registered successfully. Please log in.'
                 }
-                # return a response notifying the user that they registered successfully
+                # return a response notifying the user that they registered
+                # successfully
                 return make_response(jsonify(response)), 201
             except Exception as e:
-                # An error occured, therefore return a string message containing the error
+                # An error occured, therefore return a string message
+                # containing the error
                 response = {
                     'message':  str(e)
                 }
                 return make_response(jsonify(response)), 401
         else:
             # There is an existing user. We don't want to register users twice
-            # Return a message to the user telling them that they they already exist
+            # Return a message to the user telling them that they they already
+            # exist
             response = {
                 'message': 'User already exists. Please login.'
             }
 
             return make_response(jsonify(response)), 202
+
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
@@ -56,7 +61,8 @@ class LoginView(MethodView):
 
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
-                # Generate the access token. This will be used as the authorization header
+                # Generate the access token. This will be used as the
+                # authorization header
                 access_token = user.generate_token(user.id)
                 if access_token:
                     response = {
@@ -76,8 +82,10 @@ class LoginView(MethodView):
             response = {
                 'message': str(e)
             }
-            # Return a server error using the HTTP Error Code 500 (Internal Server Error)
+            # Return a server error using the HTTP Error Code 500 (Internal
+            # Server Error)
             return make_response(jsonify(response)), 500
+
 
 # Define the API resource
 registration_view = RegistrationView.as_view('registration_view')

@@ -8,6 +8,7 @@ from instance.config import app_config
 # initialize sql-alchemy
 db = SQLAlchemy()
 
+
 def create_app(config_name):
     """ Creates the app based on the configurations"""
     from app.models import Bucketlist, User, Item
@@ -17,10 +18,10 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-
     @app.route('/bucketlists/', methods=['POST', 'GET'])
     def bucketlists():
-        """ Creates a bucketlis(POST) or lists all bucketlists(GET) for a user"""
+        """ Creates a bucketlis(POST) or
+         lists all bucketlists(GET) for a user"""
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -48,18 +49,20 @@ def create_app(config_name):
                         return make_response(response), 201
                     else:
                         response = jsonify({
-                            "message": "Humans baffle me... Kweni you want to do nothing?"
+                            "message": "Bucketlist must have name"
                         })
                         return make_response(response), 400
 
                 else:
                     # GET all the bucketlists created by this user
-                    bucketlists = Bucketlist.query.filter_by(created_by=user_id)
+                    bucketlists = Bucketlist.query.filter_by(
+                        created_by=user_id)
                     if bucketlists:
                         results = []
 
                         for bucketlist in bucketlists:
-                            items = Item.query.filter_by(bucketlist_id=bucketlist.id)
+                            items = Item.query.filter_by(
+                                bucketlist_id=bucketlist.id)
                             results_items = []
                             for item in items:
                                 obj = {
@@ -107,8 +110,10 @@ def create_app(config_name):
 
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
-                # Get the bucketlist with the id specified from the URL (<int:id>)
-                bucketlist = Bucketlist.query.filter_by(created_by=user_id).first()
+                # Get the bucketlist with the id specified from the URL
+                # (<int:id>)
+                bucketlist = Bucketlist.query.filter_by(
+                    created_by=user_id).first()
                 if not bucketlist:
                     # There is no bucketlist with this ID for this User, so
                     # Raise an HTTPException with a 404 not found status code
@@ -118,11 +123,13 @@ def create_app(config_name):
                     # delete the bucketlist using our delete method
                     bucketlist.delete()
                     return {
-                        "message": "bucketlist {} deleted".format(bucketlist.id)
+                        "message": "bucketlist {} deleted".format(
+                            bucketlist.id)
                     }, 200
 
                 elif request.method == 'PUT':
-                    # Obtain the new name of the bucketlist from the request data
+                    # Obtain the new name of the bucketlist from the request
+                    # data
                     name = str(request.data.get('name', ''))
 
                     bucketlist.name = name
@@ -137,7 +144,8 @@ def create_app(config_name):
                     }
                     return make_response(jsonify(response)), 200
                 else:
-                    # Handle GET request, sending back the bucketlist to the user
+                    # Handle GET request, sending back the bucketlist to the
+                    # user
                     items = Item.query.filter_by(bucketlist_id=b_id)
                     results_items = []
 
@@ -167,21 +175,21 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
-    
+
     @app.route('/bucketlists/<int:b_id>/items/', methods=['POST'])
     def items(b_id, **kwargs):
         """ Creates an item in a bucketlist """
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
-        
 
         if access_token:
             user_id = User.decode_token(access_token)
 
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
-                # Get the bucketlist with the id specified from the URL (<int:id>)
+                # Get the bucketlist with the id specified from the URL
+                # (<int:id>)
                 bucketlist = Bucketlist.query.filter_by(id=b_id).first()
                 if not bucketlist:
                     # There is no bucketlist with this ID for this User, so
@@ -214,13 +222,11 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-
     @app.route('/bucketlists/<int:b_id>/items/<int:item_id>', methods=['PUT', 'DELETE'])
     def items_manipulation(b_id, item_id, **kwargs):
         """ Changes info for an item or deltes it by ID"""
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
-        
 
         if access_token:
             user_id = User.decode_token(access_token)
@@ -231,7 +237,6 @@ def create_app(config_name):
                     # There is no bucketlist with this ID for this User, so
                     # Raise an HTTPException with a 404 not found status code
                     abort(404)
-
 
                 item = Item.query.filter_by(item_id=item_id).first()
                 if not item:
@@ -245,9 +250,10 @@ def create_app(config_name):
                     return {
                         "message": "Item deleted successfully"
                     }, 200
-                
+
                 elif request.method == 'PUT':
-                    # Obtain the new name of the bucketlist from the request data
+                    # Obtain the new name of the bucketlist from the request
+                    # data
                     name = str(request.data.get('name', ''))
 
                     if name:
@@ -267,7 +273,6 @@ def create_app(config_name):
                         })
                         return make_response(response), 400
 
-                
             else:
                 # user is not legit, so the payload is an error message
                 message = user_id
@@ -276,9 +281,6 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
-
-
-
 
     from .auth import auth_blueprint
     app.register_blueprint(auth_blueprint)

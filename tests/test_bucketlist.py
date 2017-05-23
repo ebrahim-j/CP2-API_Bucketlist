@@ -62,7 +62,8 @@ class BucketlistTestCase(unittest.TestCase):
             data=self.bucketlist)
         self.assertEqual(res.status_code, 201)
 
-        # get all the bucketlists that belong to the test user by making a GET request
+        # get all the bucketlists that belong to the test user by making a GET
+        # request
         res = self.client().get(
             '/bucketlists/',
             headers=dict(Authorization="Bearer " + access_token),
@@ -93,7 +94,6 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertIn('Go to Borabora', str(result.data))
 
-
     def test_bucketlist_can_be_edited(self):
         """Test API can edit an existing bucketlist. (PUT request)"""
         self.register_user()
@@ -118,7 +118,8 @@ class BucketlistTestCase(unittest.TestCase):
             })
         self.assertEqual(rv.status_code, 200)
 
-        # finally, we get the edited bucketlist to see if it is actually edited.
+        # finally, we get the edited bucketlist to see if it is actually
+        # edited.
         results = self.client().get(
             '/bucketlists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
@@ -149,9 +150,6 @@ class BucketlistTestCase(unittest.TestCase):
             '/bucketlists/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
-
-
-
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

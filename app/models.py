@@ -71,6 +71,7 @@ class User(db.Model):
             # the token is invalid, return an error string
             return "Invalid token. Please register or login"
 
+
 class Bucketlist(db.Model):
     """This class defines the bucketlist table."""
 
@@ -113,6 +114,7 @@ class Bucketlist(db.Model):
     def __repr__(self):
         """Return a representation of a bucketlist instance."""
         return "<Bucketlist: {}>".format(self.name)
+
 
 class Item(db.Model):
     __tablename__ = 'items'
