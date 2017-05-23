@@ -1,7 +1,6 @@
 from flask import Blueprint
 
-
-auth_blueprint = Blueprint('auth_blueprint', __name__)
-
+# This instance of a Blueprint that represents the authentication blueprint
+auth_blueprint = Blueprint('auth', __name__)
 
 from . import views

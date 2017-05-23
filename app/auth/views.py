@@ -1,51 +1,99 @@
-import json
-from app.auth import auth_blueprint
-from flask import jsonify, request
+from . import auth_blueprint
+
+from flask.views import MethodView
+from flask import make_response, request, jsonify
 from app.models import User
-from app import db
 
-@auth_blueprint.route('/api/auth/register/', methods=['POST'])
-def register_user():
-    # return "This"
-    try:
-        username = request.json.get("username")
+class RegistrationView(MethodView):
+    """This class registers a new user."""
+
+    def post(self):
+        """Handle POST request for this view. Url ---> /auth/register"""
+
+        # Query to see if the user already exists
+        user = User.query.filter_by(email=request.data['email']).first()
+
+        if not user:
+            # There is no user so we'll try to register them
+            try:
+                post_data = request.data
+                # Register the user
+                
+                email = post_data['email']
+                #if email an empty string?
+                password = post_data['password']
+                user = User(email=email, password=password)
+                user.save()
+
+                response = {
+                    'message': 'You registered successfully. Please log in.'
+                }
+                # return a response notifying the user that they registered successfully
+                return make_response(jsonify(response)), 201
+            except Exception as e:
+                # An error occured, therefore return a string message containing the error
+                response = {
+                    'message':  str(e)
+                }
+                return make_response(jsonify(response)), 401
+        else:
+            # There is an existing user. We don't want to register users twice
+            # Return a message to the user telling them that they they already exist
+            response = {
+                'message': 'User already exists. Please login.'
+            }
+
+            return make_response(jsonify(response)), 202
+
+class LoginView(MethodView):
+    """This class-based view handles user login and access token generation."""
+
+    def post(self):
+        """Handle POST request for this view. Url ---> /auth/login"""
         try:
-            password = request.json.get("password")
-        except KeyError:
-            return jsonify({"error": "missing password"})
-    except KeyError:
-        return jsonify({"error": "missing username"})
-    ''' Confirm username and password not empty'''
-    if not username or not password:
-        return jsonify({"error": "username or password cannot be empty"})
+            # Get the user object using their email (unique to every user)
+            user = User.query.filter_by(email=request.data['email']).first()
 
-    ''' Check if a user with a similar username exists '''
-    user = User.query.filter_by(username=username).first()
-    if user:
-        return jsonify({"error": "Username already exists"})
+            # Try to authenticate the found user using their password
+            if user and user.password_is_valid(request.data['password']):
+                # Generate the access token. This will be used as the authorization header
+                access_token = user.generate_token(user.id)
+                if access_token:
+                    response = {
+                        'message': 'You logged in successfully.',
+                        'access_token': access_token.decode()
+                    }
+                    return make_response(jsonify(response)), 200
+            else:
+                # User does not exist. Therefore, we return an error message
+                response = {
+                    'message': 'Invalid email or password, Please try again'
+                }
+                return make_response(jsonify(response)), 401
 
-    ''' Create user instance and save to database '''
-    user = User(username=username)
-    user.encrypt_password(password)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({"message": "user created successfully", "username": username}), 201
+        except Exception as e:
+            # Create a response containing an string error message
+            response = {
+                'message': str(e)
+            }
+            # Return a server error using the HTTP Error Code 500 (Internal Server Error)
+            return make_response(jsonify(response)), 500
 
-@auth_blueprint.route('/api/auth/login/', methods=['POST'])
-def login():
-    # return "This"
-    username = request.json.get("username", "")
-    password = request.json.get("password", "")
+# Define the API resource
+registration_view = RegistrationView.as_view('registration_view')
+login_view = LoginView.as_view('login_view')
 
-    if not username or not password:
-        return jsonify({"error": "missing username or password"}), 400
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        return jsonify({"error": "Invalid login credentials"})
-    elif not user.verify_password(password):
-        return jsonify({"error": "invalid password"})
-    else:
-        token = user.generate_auth_token().decode('utf-8')
-        return jsonify({"message": "login successful", "username": user.username, "authentication_token": token}), 200
+# Define the rule for the registration url --->  /auth/register
+# Then add the rule to the blueprint
+auth_blueprint.add_url_rule(
+    '/auth/register',
+    view_func=registration_view,
+    methods=['POST'])
 
-# edge cases here
+# Define the rule for the registration url --->  /auth/login
+# Then add the rule to the blueprint
+auth_blueprint.add_url_rule(
+    '/auth/login',
+    view_func=login_view,
+    methods=['POST']
+)

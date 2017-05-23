@@ -1,55 +1,146 @@
-from datetime import datetime
-from werkzeug.security import check_password_hash, generate_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Tokenizer
-from flask import current_app
+import jwt
 from app import db
+from flask_bcrypt import Bcrypt
+from flask import current_app
+from datetime import datetime, timedelta
 
 
 class User(db.Model):
+    """This class defines the users table """
+
     __tablename__ = 'users'
+
+    # Define the columns of the users table, starting with the primary key
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), index=True, unique=True)
-    password_hash = db.Column(db.String(255))
+    email = db.Column(db.String(256), nullable=False, unique=True)
+    password = db.Column(db.String(256), nullable=False)
+    bucketlists = db.relationship(
+        'Bucketlist', order_by='Bucketlist.id', cascade="all, delete-orphan")
 
-    def encrypt_password(self, password):
-        self.password_hash = generate_password_hash(password)
+    def __init__(self, email, password):
+        """Initialize the user with an email and a password."""
+        self.email = email
+        self.password = Bcrypt().generate_password_hash(password).decode()
 
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    def password_is_valid(self, password):
+        """
+        Checks the password against it's hash to validates the user's password
+        """
+        return Bcrypt().check_password_hash(self.password, password)
 
-    def generate_auth_token(self, expires_in=100):
-        s = Tokenizer(current_app.config['SECRET_KEY'], expires_in=expires_in)
-        return s.dumps({'id': self.id})
+    def save(self):
+        """Save a user to the database.
+        This includes creating a new user and editing one.
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    def generate_token(self, user_id):
+        """ Generates the access token"""
+
+        try:
+            # set up a payload with an expiration time
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'sub': user_id
+            }
+            # create the byte string token using the payload and the SECRET key
+            jwt_string = jwt.encode(
+                payload,
+                current_app.config.get('SECRET'),
+                algorithm='HS256'
+            )
+            return jwt_string
+
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
 
     @staticmethod
-    def decode_auth_token(token):
-        s = Tokenizer(current_app.config['SECRET_KEY'])
+    def decode_token(token):
+        """Decodes the access token from the Authorization header."""
         try:
-            data = s.loads(token)
-        except:
-            return None
-        return User.query.get(data['id'])
-
+            # try to decode the token using our SECRET variable
+            payload = jwt.decode(token, current_app.config.get('SECRET'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            # the token is expired, return an error string
+            return "Expired token. Please login to get a new token"
+        except jwt.InvalidTokenError:
+            # the token is invalid, return an error string
+            return "Invalid token. Please register or login"
 
 class Bucketlist(db.Model):
-    __tablename__ = "bucketlists"
+    """This class defines the bucketlist table."""
+
+    __tablename__ = 'bucketlists'
+
+    # define the columns of the table, starting with its primary key
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), index=True, unique=True, nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.now())
-    date_modified = db.Column(db.DateTime, default=datetime.now())
-    created_by = db.Column(db.Integer, db.ForeignKey(
-        'users.id', ondelete='CASCADE'))
+    name = db.Column(db.String(255))
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_modified = db.Column(
+        db.DateTime, default=db.func.current_timestamp(),
+        onupdate=db.func.current_timestamp())
+    created_by = db.Column(db.Integer, db.ForeignKey(User.id))
     items = db.relationship(
         'Item', backref='bucketlists', passive_deletes=True)
 
+    def __init__(self, name, created_by):
+        """Initialize the bucketlist with a name and its creator."""
+        self.name = name
+        self.created_by = created_by
 
+    def save(self):
+        """Save a bucketlist.
+        This applies for both creating a new bucketlist
+        and updating an existing onupdate
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all(user_id):
+        """This method gets all the bucketlists for a given user."""
+        return Bucketlist.query.filter_by(created_by=user_id)
+
+    def delete(self):
+        """Deletes a given bucketlist."""
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self):
+        """Return a representation of a bucketlist instance."""
+        return "<Bucketlist: {}>".format(self.name)
 
 class Item(db.Model):
     __tablename__ = 'items'
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.now())
-    date_modified = db.Column(db.DateTime, default=datetime.now())
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_modified = db.Column(db.DateTime, default=db.func.current_timestamp())
     done = db.Column(db.Boolean, default=False)
-    bucketlist_id = db.Column(db.Integer, db.ForeignKey(
-        'bucketlists.id', ondelete='CASCADE'))
+    bucketlist_id = db.Column(db.Integer, db.ForeignKey(Bucketlist.id))
+    
+    def __init__(self, name, bucketlist_id):
+        """Initialize the item with a name."""
+        self.name = name
+        self.bucketlist_id = bucketlist_id
+
+    def save(self):
+        """Save an item.
+        This applies for both creating a new item
+        and updating an existing one
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        """Deletes a given item."""
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self):
+        """Return a representation of an item instance."""
+        return "<Item: {}>".format(self.name)

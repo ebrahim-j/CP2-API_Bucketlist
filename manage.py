@@ -1,31 +1,23 @@
 import os
-from app import create_app, db
-
-
-from flask_script import Manager, prompt_bool
+from flask_script import Manager, prompt_bool # class for handling a set of commands
 from flask_migrate import Migrate, MigrateCommand
-from flask import jsonify
+from app import db, create_app
+from app import models
 
-
-# make Flask application from app factory
-app = create_app(os.getenv('APP_SETTINGS') or 'development')
-with app.app_context():
-    from app.models import User, Item, Bucketlist
-# initialise manager class
-manager = Manager(app)
-# initialise migrate class
+app = create_app(config_name=os.getenv('APP_SETTINGS'))
 migrate = Migrate(app, db)
-
-
+manager = Manager(app)
 
 manager.add_command('db', MigrateCommand)
 
-
-# @manager.command
-# def test():
-#     """Run the unit tests."""
-#     pass
-
+@manager.command
+def test():
+    """Runs the unit tests without test coverage."""
+    tests = unittest.TestLoader().discover('./tests', pattern='test*.py')
+    result = unittest.TextTestRunner(verbosity=2).run(tests)
+    if result.wasSuccessful():
+        return 0
+    return 1
 
 @manager.command
 def initdb():
@@ -42,5 +34,6 @@ def dropdb():
         db.drop_all()
         print("Byebye db :'(")
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     manager.run()
