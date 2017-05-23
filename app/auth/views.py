@@ -6,7 +6,7 @@ from app.models import User
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
-
+    @staticmethod
     def post(self):
         """Handle POST request for this view. Url ---> /auth/register"""
 
@@ -18,7 +18,7 @@ class RegistrationView(MethodView):
             try:
                 post_data = request.data
                 # Register the user
-                
+
                 email = post_data['email']
                 #if email an empty string?
                 password = post_data['password']

@@ -22,7 +22,6 @@ def create_app(config_name):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
-        
 
         if access_token:
          # Attempt to decode the token and get the User ID
@@ -92,8 +91,8 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/bucketlists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-    def bucketlist_manipulation(id, **kwargs):
+    @app.route('/bucketlists/<int:b_id>', methods=['GET', 'PUT', 'DELETE'])
+    def bucketlist_manipulation(b_id, **kwargs):
      # retrieve a buckelist using it's ID
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
@@ -136,7 +135,7 @@ def create_app(config_name):
                     return make_response(jsonify(response)), 200
                 else:
                     # Handle GET request, sending back the bucketlist to the user
-                    items = Item.query.filter_by(bucketlist_id=id)
+                    items = Item.query.filter_by(bucketlist_id=b_id)
                     results_items = []
                     
                     for item in items:
@@ -166,8 +165,8 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
     
-    @app.route('/bucketlists/<int:id>/items/', methods=['POST'])
-    def items(id, **kwargs):
+    @app.route('/bucketlists/<int:b_id>/items/', methods=['POST'])
+    def items(b_id, **kwargs):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -179,14 +178,14 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
                 # Get the bucketlist with the id specified from the URL (<int:id>)
-                bucketlist = Bucketlist.query.filter_by(id=id).first()
+                bucketlist = Bucketlist.query.filter_by(id=b_id).first()
                 if not bucketlist:
                     # There is no bucketlist with this ID for this User, so
                     # Raise an HTTPException with a 404 not found status code
                     abort(404)
                 name = str(request.data.get('name', ''))
                 if name:
-                    item = Item(name=name, bucketlist_id=id)
+                    item = Item(name=name, bucketlist_id=b_id)
                     item.save()
                     response = jsonify({
                         'id': item.item_id,
@@ -212,8 +211,8 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
 
-    @app.route('/bucketlists/<int:id>/items/<int:item_id>', methods=['PUT', 'DELETE'])
-    def items_manipulation(id, item_id, **kwargs):
+    @app.route('/bucketlists/<int:b_id>/items/<int:item_id>', methods=['PUT', 'DELETE'])
+    def items_manipulation(b_id, item_id, **kwargs):
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
         
@@ -222,7 +221,7 @@ def create_app(config_name):
             user_id = User.decode_token(access_token)
 
             if not isinstance(user_id, str):
-                bucketlist = Bucketlist.query.filter_by(id=id).first()
+                bucketlist = Bucketlist.query.filter_by(id=b_id).first()
                 if not bucketlist:
                     # There is no bucketlist with this ID for this User, so
                     # Raise an HTTPException with a 404 not found status code

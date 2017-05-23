@@ -82,7 +82,7 @@ class BucketlistTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.bucketlist)
 
-        # assert that the bucketlist is created 
+        # assert that the bucketlist is created
         self.assertEqual(rv.status_code, 201)
         # get the response data in json format
         results = json.loads(rv.data.decode())
@@ -152,7 +152,7 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 404)
 
 
-    
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
