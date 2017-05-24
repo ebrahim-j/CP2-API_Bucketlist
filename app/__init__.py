@@ -18,7 +18,7 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/bucketlists/', methods=['POST', 'GET'])
+    @app.route('/api/v1/bucketlists/', methods=['POST', 'GET'])
     def bucketlists():
         """ Creates a bucketlis(POST) or
          lists all bucketlists(GET) for a user"""
@@ -81,7 +81,6 @@ def create_app(config_name):
                                 'created_by': bucketlist.created_by
                             }
                             results.append(obj)
-
                         return make_response(jsonify(results)), 200
                     else:
                         response = jsonify({
@@ -96,7 +95,7 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/bucketlists/<int:b_id>', methods=['GET', 'PUT', 'DELETE'])
+    @app.route('/api/v1/bucketlists/<int:b_id>', methods=['GET', 'PUT', 'DELETE'])
     def bucketlist_manipulation(b_id, **kwargs):
         """ GETS a bucketlist's info, changes it or deletes it by ID"""
         # retrieve a buckelist using it's ID
@@ -176,7 +175,7 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-    @app.route('/bucketlists/<int:b_id>/items/', methods=['POST'])
+    @app.route('/api/v1/bucketlists/<int:b_id>/items/', methods=['POST'])
     def items(b_id, **kwargs):
         """ Creates an item in a bucketlist """
         # Get the access token from the header
@@ -222,7 +221,7 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-    @app.route('/bucketlists/<int:b_id>/items/<int:item_id>', methods=['PUT', 'DELETE'])
+    @app.route('/api/v1/bucketlists/<int:b_id>/items/<int:item_id>', methods=['PUT', 'DELETE'])
     def items_manipulation(b_id, item_id, **kwargs):
         """ Changes info for an item or deltes it by ID"""
         auth_header = request.headers.get('Authorization')
