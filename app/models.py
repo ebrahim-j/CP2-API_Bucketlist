@@ -101,19 +101,19 @@ class Bucketlist(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    @staticmethod
-    def get_all(user_id):
-        """This method gets all the bucketlists for a given user."""
-        return Bucketlist.query.filter_by(created_by=user_id)
+    # @staticmethod
+    # def get_all(user_id):
+    #     """This method gets all the bucketlists for a given user."""
+    #     return Bucketlist.query.filter_by(created_by=user_id)
 
     def delete(self):
         """Deletes a given bucketlist."""
         db.session.delete(self)
         db.session.commit()
 
-    def __repr__(self):
-        """Return a representation of a bucketlist instance."""
-        return "<Bucketlist: {}>".format(self.name)
+    # def __repr__(self):
+    #     """Return a representation of a bucketlist instance."""
+    #     return "<Bucketlist: {}>".format(self.name)
 
 
 class Item(db.Model):
@@ -143,6 +143,6 @@ class Item(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def __repr__(self):
-        """Return a representation of an item instance."""
-        return "<Item: {}>".format(self.name)
+    # def __repr__(self):
+    #     """Return a representation of an item instance."""
+    #     return "<Item: {}>".format(self.name)
