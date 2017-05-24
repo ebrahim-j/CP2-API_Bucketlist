@@ -9,7 +9,7 @@ class RegistrationView(MethodView):
     """This class registers a new user."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/register"""
+        """Handle POST request for registering a User"""
 
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
@@ -51,7 +51,7 @@ class RegistrationView(MethodView):
 
 
 class LoginView(MethodView):
-    """This class-based view handles user login and access token generation."""
+    """This view handles user login and access token generation."""
 
     def post(self):
         """Handle POST request for this view. Url ---> /auth/login"""
