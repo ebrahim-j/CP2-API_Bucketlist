@@ -1,4 +1,5 @@
 import os
+import unittest
 from flask_script import Manager, prompt_bool
 from flask_migrate import Migrate, MigrateCommand
 from app import db, create_app
@@ -33,7 +34,7 @@ def dropdb():
     """ delete all the data in the database and destroy all the tables """
     if prompt_bool("Are you sure you want to destroy all your data"):
         db.drop_all()
-        print("Byebye db :'(")
+        print(".......Done")
 
 
 if __name__ == '__main__':
