@@ -61,7 +61,6 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertIn('Bucketlist must have name', str(res.data))
 
-
     def test_api_can_get_all_bucketlists(self):
         """Test API can get all bucketlists (GET request)."""
         self.register_user()
@@ -177,7 +176,7 @@ class BucketlistTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/bucketlists/1',
             headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 400)
 
     def test_creates_item(self):
         """ Test API can add item to a bucketlist"""
