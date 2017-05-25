@@ -136,8 +136,8 @@ def create_app(config_name):
                                 }
                                 temp_list.append(data)
                             response = {
-                                "nextpage": nextpage,
-                                "Previouspage": previouspage,
+                                "next": nextpage,
+                                "prev": previouspage,
                                 "Buckets": temp_list
                             }
                             return make_response(jsonify(response)), 200
