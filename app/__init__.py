@@ -141,32 +141,7 @@ def create_app(config_name):
                                 "Buckets": temp_list
                             }
                             return make_response(jsonify(response)), 200
-                            # bucketlists = Bucketlist.query.filter_by(
-                            #     created_by=user_id)
-                            # results = []
 
-                            # for bucketlist in bucketlists:
-                            #     items = Item.query.filter_by(
-                            #         bucketlist_id=bucketlist.id)
-                            #     results_items = []
-                            #     for item in items:
-                            #         obj = {
-                            #             'id': item.item_id,
-                            #             'name': item.name,
-                            #             'date_created': item.date_created,
-                            #             'date_modified': item.date_modified
-                            #         }
-                            #         results_items.append(obj)
-                            #     obj = {
-                            #         'id': bucketlist.id,
-                            #         'name': bucketlist.name,
-                            #         'date_created': bucketlist.date_created,
-                            #         'date_modified': bucketlist.date_modified,
-                            #         'items': results_items,
-                            #         'created_by': bucketlist.created_by
-                            #     }
-                            #     results.append(obj)
-                            # return make_response(jsonify(results)), 200
                         else:
                             response = jsonify({
                                 "message": "No bucketlist yet"
