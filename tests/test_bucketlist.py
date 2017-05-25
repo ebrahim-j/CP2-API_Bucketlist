@@ -61,8 +61,9 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertIn('Bucketlist must have name', str(res.data))
 
+
     def test_api_can_get_all_bucketlists(self):
-        """Test API can get a bucketlist (GET request)."""
+        """Test API can get all bucketlists (GET request)."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
@@ -84,7 +85,7 @@ class BucketlistTestCase(unittest.TestCase):
         self.assertIn('Sleep', str(res.data))
 
     def test_get_api_with_no_bucketlists(self):
-        """Test API cannot get a bucketlist (GET request)."""
+        """Test API cannot get a bucketlist when not there (GET request)."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
@@ -117,7 +118,7 @@ class BucketlistTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/bucketlists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
-        # assert that the bucketlist is actually returned given its ID
+        # assert that the bucketlist is returned given its ID
         self.assertEqual(result.status_code, 200)
         self.assertIn('Sleep', str(result.data))
 
@@ -308,7 +309,6 @@ class BucketlistTestCase(unittest.TestCase):
             results['id'], item_id), headers=dict(Authorization="Bearer " + access_token), data={'name': ''})
         self.assertEqual(response.status_code, 400)
         self.assertIn('Item name not valid', str(response.data))
-
 
 
 # Make the tests conveniently executable
