@@ -63,10 +63,10 @@ class AuthTestCase(unittest.TestCase):
         """Test non registered users cannot login."""
         # define a dictionary to represent an unregistered user
         not_a_user = {
-            'email': 'not_a_user@example.com',
-            'password': 'nope'
+            'email': 'not_a_user@here.com',
+            'password': 'nicetry'
         }
-        # send a POST request to /auth/login with the data above
+        # send a POST request to /api/v1/auth/login with the data above
         res = self.client().post('/api/v1/auth/login', data=not_a_user)
         # get the result in json
         result = json.loads(res.data.decode())
