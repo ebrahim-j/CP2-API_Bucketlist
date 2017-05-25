@@ -1,0 +1,2 @@
+# CP2-API_Bucketlist
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8a1fa4c8931d440d97bdb7711c502f88)](https://www.codacy.com/app/ebrahim-j/CP2-API_Bucketlist?utm_source=github.com&utm_medium=referral&utm_content=ebrahim-j/CP2-API_Bucketlist&utm_campaign=badger)
