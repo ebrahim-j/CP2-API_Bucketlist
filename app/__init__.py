@@ -21,6 +21,11 @@ def create_app(config_name):
          lists all bucketlists(GET) for a user"""
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            response = jsonify({
+                "message": "You do not have access to this resource"
+            })
+            return make_response(response), 401
         access_token = auth_header.split(" ")[1]
         if access_token:
          # Attempt to decode the token and get the User ID
@@ -29,8 +34,18 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 # Go ahead and handle the request, the user is authenticated
                 if request.method == "POST":
+                    all_buckets = Bucketlist.query.all()
+                    named_buckets = [bucket.name.upper()
+                                     for bucket in all_buckets]
                     name = str(request.data.get('name', ''))
                     if name:
+                        # check if name already exists
+                        if name.upper() in named_buckets:
+                            response = jsonify({
+                                "message": "Bucketlist with that name exists"
+                            })
+                            return make_response(response), 400
+
                         bucketlist = Bucketlist(name=name, created_by=user_id)
                         bucketlist.save()
                         response = jsonify({
@@ -161,6 +176,11 @@ def create_app(config_name):
 
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            response = jsonify({
+                "message": "You do not have access to this resource"
+            })
+            return make_response(response), 401
         access_token = auth_header.split(" ")[1]
 
         if access_token:
@@ -172,11 +192,14 @@ def create_app(config_name):
                 # Get the bucketlist with the id specified from the URL
                 # (<int:b_id>)
                 bucketlist = Bucketlist.query.filter_by(
-                    created_by=user_id).first()
+                    created_by=user_id).filter_by(id=int(b_id)).first()
                 if not bucketlist:
                     # There is no bucketlist with this ID for this User, so
                     # Raise an HTTPException with a 404 not found status code
-                    abort(404)
+                    response = jsonify({
+                        "message": "This bucketlist is not there"
+                    })
+                    return make_response(response), 400
 
                 if request.method == "DELETE":
                     # delete the bucketlist using our delete method
@@ -240,6 +263,11 @@ def create_app(config_name):
         """ Creates an item in a bucketlist """
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            response = jsonify({
+                "message": "You do not have access to this resource"
+            })
+            return make_response(response), 401
         access_token = auth_header.split(" ")[1]
 
         if access_token:
@@ -255,7 +283,15 @@ def create_app(config_name):
                     # Raise an HTTPException with a 404 not found status code
                     abort(404)
                 name = str(request.data.get('name', ''))
+                all_items = Item.query.filter_by(bucketlist_id=b_id)
+                name_items = [item.name.upper() for item in all_items]
                 if name:
+                    if name.upper() in name_items:
+                        response = jsonify({
+                            "message": "Item with that name already exists"
+                        })
+                        return make_response(response), 400
+
                     item = Item(name=name, bucketlist_id=b_id)
                     item.save()
                     response = jsonify({
@@ -285,6 +321,11 @@ def create_app(config_name):
     def items_manipulation(b_id, item_id, **kwargs):
         """ Changes info for an item or deltes it by ID"""
         auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            response = jsonify({
+                "message": "You do not have access to this resource"
+            })
+            return make_response(response), 401
         access_token = auth_header.split(" ")[1]
 
         if access_token:
