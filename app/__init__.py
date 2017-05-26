@@ -34,7 +34,7 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 # Go ahead and handle the request, the user is authenticated
                 if request.method == "POST":
-                    all_buckets = Bucketlist.query.all()
+                    all_buckets = Bucketlist.query.filter_by(created_by=user_id)
                     named_buckets = [bucket.name.upper()
                                      for bucket in all_buckets]
                     name = str(request.data.get('name', ''))
@@ -161,7 +161,7 @@ def create_app(config_name):
                             response = jsonify({
                                 "message": "No bucketlist yet"
                             })
-                            return make_response(response), 400
+                            return make_response(response), 404
             else:
                 # user is not legit, so the payload is an error message
                 message = user_id
@@ -199,7 +199,7 @@ def create_app(config_name):
                     response = jsonify({
                         "message": "This bucketlist is not there"
                     })
-                    return make_response(response), 400
+                    return make_response(response), 404
 
                 if request.method == "DELETE":
                     # delete the bucketlist using our delete method
@@ -212,7 +212,7 @@ def create_app(config_name):
                 elif request.method == 'PUT':
                     # Obtain the new name of the bucketlist from the request
                     # data
-                    name = str(request.data.get('name', ''))
+                    name = str(request.data.get('name'))
 
                     bucketlist.name = name
                     bucketlist.save()
@@ -282,7 +282,7 @@ def create_app(config_name):
                     # There is no bucketlist with this ID for this User, so
                     # Raise an HTTPException with a 404 not found status code
                     abort(404)
-                name = str(request.data.get('name', ''))
+                name = str(request.data.get('name'))
                 all_items = Item.query.filter_by(bucketlist_id=b_id)
                 name_items = [item.name.upper() for item in all_items]
                 if name:
