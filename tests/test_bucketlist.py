@@ -176,7 +176,7 @@ class BucketlistTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/bucketlists/1',
             headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(result.status_code, 400)
+        self.assertEqual(result.status_code, 404)#this
 
     def test_creates_item(self):
         """ Test API can add item to a bucketlist"""
