@@ -115,7 +115,6 @@ def create_app(config_name):
                         bucketlists = Bucketlist.query.filter_by(
                             created_by=user_id).paginate(page, limit, False)
                         listed_bucketlists = bucketlists.items
-                        result = []
                         if bucketlists.has_next:
                             nextpage = "/api/v1/bucketlists/?page=" + \
                                 str(page + 1) + "&limit=" + str(limit)
