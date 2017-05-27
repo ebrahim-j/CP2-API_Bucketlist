@@ -44,7 +44,7 @@ class BucketlistTestCase(unittest.TestCase):
         # create a bucketlist by making a POST request
         res = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data=self.bucketlist)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Sleep', str(res.data))
@@ -56,7 +56,7 @@ class BucketlistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': ''})
         self.assertEqual(res.status_code, 400)
         self.assertIn('Bucketlist must have name', str(res.data))
@@ -70,7 +70,7 @@ class BucketlistTestCase(unittest.TestCase):
         # create a bucketlist by making a POST request
         res = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data=self.bucketlist)
         self.assertEqual(res.status_code, 201)
 
@@ -78,7 +78,7 @@ class BucketlistTestCase(unittest.TestCase):
         # request
         res = self.client().get(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
         )
         self.assertEqual(res.status_code, 200)
         self.assertIn('Sleep', str(res.data))
@@ -93,7 +93,7 @@ class BucketlistTestCase(unittest.TestCase):
         # request
         res = self.client().get(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
         )
         self.assertEqual(res.status_code, 200)
         self.assertTrue('No bucketlist yet', str(res.data))
@@ -106,7 +106,7 @@ class BucketlistTestCase(unittest.TestCase):
 
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data=self.bucketlist)
 
         # assert that the bucketlist is created
@@ -116,7 +116,7 @@ class BucketlistTestCase(unittest.TestCase):
 
         result = self.client().get(
             '/api/v1/bucketlists/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token))
+            headers=dict(Authorization=access_token))
         # assert that the bucketlist is returned given its ID
         self.assertEqual(result.status_code, 200)
         self.assertIn('Sleep', str(result.data))
@@ -130,7 +130,7 @@ class BucketlistTestCase(unittest.TestCase):
         # first, we create a bucketlist by making a POST request
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, repeat'})
         self.assertEqual(rv.status_code, 201)
         # get the json with the bucketlist
@@ -139,7 +139,7 @@ class BucketlistTestCase(unittest.TestCase):
         # then, we edit the created bucketlist by making a PUT request
         rv = self.client().put(
             '/api/v1/bucketlists/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={
                 "name": "Sleep, eat, repeat"
             })
@@ -149,7 +149,7 @@ class BucketlistTestCase(unittest.TestCase):
         # edited.
         results = self.client().get(
             '/api/v1/bucketlists/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token))
+            headers=dict(Authorization=access_token))
         self.assertIn('Sleep, eat', str(results.data))
 
     def test_bucketlist_deletion(self):
@@ -160,7 +160,7 @@ class BucketlistTestCase(unittest.TestCase):
 
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, eat'})
         self.assertEqual(rv.status_code, 201)
         # get the bucketlist in json
@@ -169,13 +169,13 @@ class BucketlistTestCase(unittest.TestCase):
         # delete the bucketlist we just created
         res = self.client().delete(
             '/api/v1/bucketlists/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token),)
+            headers=dict(Authorization=access_token),)
         self.assertEqual(res.status_code, 200)
 
         # Test to see if it exists, should return a 404
         result = self.client().get(
             '/api/v1/bucketlists/1',
-            headers=dict(Authorization="Bearer " + access_token))
+            headers=dict(Authorization=access_token))
         self.assertEqual(result.status_code, 404)
 
     def test_creates_item(self):
@@ -187,7 +187,7 @@ class BucketlistTestCase(unittest.TestCase):
         # Create a bucketlist
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, eat'})
         self.assertEqual(rv.status_code, 201)
 
@@ -197,7 +197,7 @@ class BucketlistTestCase(unittest.TestCase):
         item_data = {'name': 'Eat good food'}
         res = self.client().post(
             '/api/v1/bucketlists/{}/items/'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token), data=item_data)
+            headers=dict(Authorization=access_token), data=item_data)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Eat good food', str(res.data))
 
@@ -210,7 +210,7 @@ class BucketlistTestCase(unittest.TestCase):
         # Create a bucketlist
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, eat'})
         self.assertEqual(rv.status_code, 201)
 
@@ -220,7 +220,7 @@ class BucketlistTestCase(unittest.TestCase):
         item_data = {'name': ''}
         res = self.client().post(
             '/api/v1/bucketlists/{}/items/'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token), data=item_data)
+            headers=dict(Authorization=access_token), data=item_data)
         self.assertEqual(res.status_code, 400)
         self.assertIn('Item must have name', str(res.data))
 
@@ -233,7 +233,7 @@ class BucketlistTestCase(unittest.TestCase):
         # Create a bucketlist
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, eat'})
         self.assertEqual(rv.status_code, 201)
 
@@ -243,12 +243,12 @@ class BucketlistTestCase(unittest.TestCase):
         item_data = {'name': 'Eat good food'}
         res = self.client().post(
             '/api/v1/bucketlists/{}/items/'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token), data=item_data)
+            headers=dict(Authorization=access_token), data=item_data)
         self.assertEqual(res.status_code, 201)
         item_id = json.loads(res.data.decode())['id']
 
         response = self.client().delete('/api/v1/bucketlists/{}/items/{}'.format(
-            results['id'], item_id), headers=dict(Authorization="Bearer " + access_token))
+            results['id'], item_id), headers=dict(Authorization=access_token))
         self.assertEqual(response.status_code, 200)
 
     def test_item_update(self):
@@ -260,7 +260,7 @@ class BucketlistTestCase(unittest.TestCase):
         # Create a bucketlist
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, eat'})
         self.assertEqual(rv.status_code, 201)
 
@@ -270,13 +270,13 @@ class BucketlistTestCase(unittest.TestCase):
         item_data = {'name': 'Eat good food'}
         res = self.client().post(
             '/api/v1/bucketlists/{}/items/'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token), data=item_data)
+            headers=dict(Authorization=access_token), data=item_data)
         self.assertEqual(res.status_code, 201)
 
         item_id = json.loads(res.data.decode())['id']
 
         response = self.client().put('/api/v1/bucketlists/{}/items/{}'.format(
-            results['id'], item_id), headers=dict(Authorization="Bearer " + access_token), data={'name': 'Eat healthy'})
+            results['id'], item_id), headers=dict(Authorization=access_token), data={'name': 'Eat healthy'})
         self.assertEqual(response.status_code, 200)
         self.assertIn('Eat healthy', str(response.data))
 
@@ -289,7 +289,7 @@ class BucketlistTestCase(unittest.TestCase):
         # Create a bucketlist
         rv = self.client().post(
             '/api/v1/bucketlists/',
-            headers=dict(Authorization="Bearer " + access_token),
+            headers=dict(Authorization=access_token),
             data={'name': 'Sleep, eat'})
         self.assertEqual(rv.status_code, 201)
 
@@ -299,13 +299,13 @@ class BucketlistTestCase(unittest.TestCase):
         item_data = {'name': 'Eat good food'}
         res = self.client().post(
             '/api/v1/bucketlists/{}/items/'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token), data=item_data)
+            headers=dict(Authorization=access_token), data=item_data)
         self.assertEqual(res.status_code, 201)
 
         item_id = json.loads(res.data.decode())['id']
 
         response = self.client().put('/api/v1/bucketlists/{}/items/{}'.format(
-            results['id'], item_id), headers=dict(Authorization="Bearer " + access_token), data={'name': ''})
+            results['id'], item_id), headers=dict(Authorization=access_token), data={'name': ''})
         self.assertEqual(response.status_code, 400)
         self.assertIn('Item name not valid', str(response.data))
 
