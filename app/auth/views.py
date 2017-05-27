@@ -1,5 +1,5 @@
 from . import auth_blueprint
-
+import re
 from flask.views import MethodView
 from flask import make_response, request, jsonify
 from app.models import User
@@ -22,6 +22,12 @@ class RegistrationView(MethodView):
 
                 email = post_data['email']
                 # if email an empty string?
+                if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                    response = jsonify({
+                        'message': 'Invalid format for email. Registration unsuccessful!'
+                    })
+                    return make_response(response), 400
+
                 password = post_data['password']
                 user = User(email=email, password=password)
                 user.save()
@@ -67,7 +73,7 @@ class LoginView(MethodView):
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()
+                        'access_token': "Bearer " + access_token.decode()
                     }
                     return make_response(jsonify(response)), 200
             else:
