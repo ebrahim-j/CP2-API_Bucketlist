@@ -70,7 +70,7 @@ def create_app(config_name):
                     search = str(request.args.get('q', ''))
                     if search:
                         bucketlist = Bucketlist.query.filter(Bucketlist.name.ilike(
-                            r"%{}%".format(search))).filter_by(created_by=user_id)
+                            r"%{}%".format(search))).filter_by(created_by=user_id).all()
 
                         if not bucketlist:
                             # There is no bucketlist with this ID for this User, so
