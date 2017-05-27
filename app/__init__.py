@@ -1,6 +1,6 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, abort, make_response, url_for
 
 from instance.config import app_config
 db = SQLAlchemy()
@@ -15,6 +15,7 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
+    @app.endpoint('example.endpoint')
     @app.route('/api/v1/bucketlists/', methods=['POST', 'GET'])
     def bucketlists():
         """ Creates a bucketlis(POST) or
@@ -34,7 +35,8 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 # Go ahead and handle the request, the user is authenticated
                 if request.method == "POST":
-                    all_buckets = Bucketlist.query.filter_by(created_by=user_id)
+                    all_buckets = Bucketlist.query.filter_by(
+                        created_by=user_id)
                     named_buckets = [bucket.name.upper()
                                      for bucket in all_buckets]
                     name = str(request.data.get('name', ''))
@@ -67,8 +69,8 @@ def create_app(config_name):
                     # GET bucketlist by name
                     search = str(request.args.get('q', ''))
                     if search:
-                        bucketlist = Bucketlist.query.filter_by(
-                            name=search).filter_by(created_by=user_id).first()
+                        bucketlist = Bucketlist.query.filter(Bucketlist.name.ilike(
+                            r"%{}%".format(search))).filter_by(created_by=user_id)
 
                         if not bucketlist:
                             # There is no bucketlist with this ID for this User, so
@@ -79,29 +81,32 @@ def create_app(config_name):
                             }
                             return make_response(jsonify(obj)), 400
                         else:
-                            items = Item.query.filter_by(
-                                bucketlist_id=bucketlist.id)
-                            results_items = []
-                            if items:
+                            results = []
+                            for bucket in bucketlist:
+                                items = Item.query.filter_by(
+                                    bucketlist_id=bucket.id)
+                                results_items = []
+                                if items:
 
-                                for item in items:
-                                    obj = {
-                                        'id': item.item_id,
-                                        'name': item.name,
-                                        'date_created': item.date_created,
-                                        'date_modified': item.date_modified
-                                    }
-                                    results_items.append(obj)
-                            obj = {
-                                'id': bucketlist.id,
-                                'name': bucketlist.name,
-                                'date_created': bucketlist.date_created,
-                                'date_modified': bucketlist.date_modified,
-                                'items': results_items,
-                                'created_by': bucketlist.created_by
-                            }
+                                    for item in items:
+                                        obj = {
+                                            'id': item.item_id,
+                                            'name': item.name,
+                                            'date_created': item.date_created,
+                                            'date_modified': item.date_modified
+                                        }
+                                        results_items.append(obj)
+                                obj = {
+                                    'id': bucket.id,
+                                    'name': bucket.name,
+                                    'date_created': bucket.date_created,
+                                    'date_modified': bucket.date_modified,
+                                    'items': results_items,
+                                    'created_by': bucket.created_by
+                                }
+                                results.append(obj)
 
-                            return make_response(jsonify(obj)), 200
+                            return make_response(jsonify(results)), 200
                     else:
                         # GET all the bucketlists created by this user
                         if request.args.get("page"):
@@ -116,12 +121,12 @@ def create_app(config_name):
                             created_by=user_id).paginate(page, limit, False)
                         listed_bucketlists = bucketlists.items
                         if bucketlists.has_next:
-                            nextpage = "/api/v1/bucketlists/?page=" + \
+                            nextpage = url_for('.bucketlists') + "?page=" + \
                                 str(page + 1) + "&limit=" + str(limit)
                         else:
                             nextpage = None
                         if bucketlists.has_prev:
-                            previouspage = "/api/v1/bucketlists/?page=" + \
+                            previouspage = url_for('.bucketlists') + "?page=" + \
                                 str(page - 1) + "&limit=" + str(limit)
                         else:
                             previouspage = None
