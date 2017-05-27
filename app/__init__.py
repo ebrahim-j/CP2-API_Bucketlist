@@ -77,7 +77,7 @@ def create_app(config_name):
                             # Raise an HTTPException with a 404 not found
                             # status code
                             obj = {
-                                "message": "No bucketlist found with that name. Remember: Names are spelling+case sensitive"
+                                "message": "No bucketlist found with that name."
                             }
                             return make_response(jsonify(obj)), 400
                         else:
