@@ -9,12 +9,12 @@ According to Merriam-Webster Dictionary, a Bucket List is a list of things that 
 1. Clone Repo:
 
     ```
-    $ git clone git@github.com:asce1062/CP2A-BucketList-Application-API.git
+    $ git clone https://github.com/ebrahim-j/CP2-API_Bucketlist.git
     ```
 2. Navigate to local directory.
 
     ```
-    $ cd CP2A-BucketList-Application-API
+    $ cd CP2-BucketList_API
     ```
 3. Create a virtualenvironment(assuming you have virtualenvwrapper).
 
@@ -78,7 +78,7 @@ Example:
 
 `GET http://localhost:/bucketlists?q=Spirituality`
 
-This request will return all bucketlists named `Spirituality`.
+This request will return all bucketlists with name similar to `Spirituality`.
 
 ### Pagination
 
@@ -92,7 +92,7 @@ It is also possible to set the record we would like to start viewing from.
 
 Example:
 
-`GET http://localhost:/api/v1/bucketlists?start=5`
+`GET http://localhost:/api/v1/bucketlists?page=5`
 
 ### Sample GET response
 After a successful resgistration and login, you will receive an athentication token. Pass this token in your request header.
