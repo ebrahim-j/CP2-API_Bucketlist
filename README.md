@@ -105,7 +105,7 @@ Below is a sample of a GET request for bucketlist
   "items": [],
   "date_created": "Tue, 23 May 2017 14:48:08 GMT",
   "date_modified": "Tue, 23 May 2017 14:48:08 GMT",
-  "created_by": "Janoosh"
+  "created_by": "1"
 }
 
 ```
