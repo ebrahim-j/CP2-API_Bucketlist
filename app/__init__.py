@@ -15,6 +15,10 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
+    @app.route('/', methods=['GET'])
+    def index():
+        return "Hello world"
+
     @app.endpoint('example.endpoint')
     @app.route('/api/v1/bucketlists/', methods=['POST', 'GET'])
     def bucketlists():
