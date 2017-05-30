@@ -7,8 +7,8 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
-    if not config_name:
-        config_name = 'development'
+    # if not config_name:
+    #     config_name = 'development'
 
     """ Creates the app based on the configurations"""
     from app.models import Bucketlist, User, Item
