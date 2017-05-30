@@ -1,1 +1,1 @@
-web: gunicorn --workers 4 --bind "0.0.0.0:$PORT" flask_app:app --log-file -
+web: gunicorn --workers 4 --bind "0.0.0.0:$PORT" run:app --log-file -
